@@ -23,11 +23,11 @@ GPIO.output(5, False)
 GPIO.output(6, False)
 
 
-# right gearbox
+# drive gearbox
 GPIO.setup(23, GPIO.OUT)
 GPIO.setup(24, GPIO.OUT)
 
-#left gearbox
+#turn gearbox
 GPIO.setup(20, GPIO.OUT)
 GPIO.setup(21, GPIO.OUT)
 
@@ -54,7 +54,7 @@ def Shutdown(channel):
 
 GPIO.add_event_detect(4, GPIO.FALLING, callback = Shutdown, bouncetime = 2000)   
 
-#blink green LED as signal to pair wiimote.
+#blink green LED twice as signal to pair wiimote.
 
 GPIO.output(5, True)
 time.sleep(0.5)
@@ -65,7 +65,7 @@ time.sleep(0.5)
 GPIO.output(5, False)
 
 
-print 'press 1 + 2 on the Wii remote.....\n'
+#print 'press 1 + 2 on the Wii remote.....\n'
 
 wii = None
 i = 2
@@ -84,12 +84,12 @@ while not wii:
             quit()
             break
 
-        print 'Error connecting to Wii remote. trying again...'
+#        print 'Error connecting to Wii remote. trying again...'
         i = i +1
 
 
 GPIO.output(5, True)  #wiimote pairing SUCCESS.  light green LED for 2 seconds.
-print 'Wii remote connected !\n'
+#print 'Wii remote connected !\n'
 time.sleep(2)
 GPIO.output(5, False)
 
@@ -104,7 +104,7 @@ while True:
     # quit if press + and - buttons together'
 
     if (buttons - cwiid.BTN_PLUS - cwiid.BTN_MINUS == 0):
-        print '\nClosing connection....'
+#        print '\nClosing connection....'
         wii.rumble = 1
         time.sleep(0.5)
         wii.rumble = 0
@@ -120,9 +120,6 @@ while True:
         GPIO.output(23, True)
         GPIO.output(24, False)
         
-        GPIO.output(20, True)
-        GPIO.output(21, False)
-
         time.sleep(button_delay)
         
     elif (buttons & cwiid.BTN_DOWN):  # go backward
@@ -132,18 +129,12 @@ while True:
         GPIO.output(23, False)
         GPIO.output(24, True)
 
-        GPIO.output(20, False)
-        GPIO.output(21, True)
-
         time.sleep(button_delay)
 
 
     elif (buttons & cwiid.BTN_LEFT):    # turn left
         
         print 'left'
-
-        GPIO.output(23, True)
-        GPIO.output(24, False)
 
         GPIO.output(20, False)
         GPIO.output(21, True)
@@ -154,9 +145,6 @@ while True:
     elif (buttons & cwiid.BTN_RIGHT):    # turn right
 
         print 'right'
-
-        GPIO.output(23, False)
-        GPIO.output(24, True)
 
         GPIO.output(20, True)
         GPIO.output(21, False)
@@ -173,7 +161,7 @@ while True:
         time.sleep(button_delay)
 
 
-print 'done'
+#print 'done'
 GPIO.output(5, True)
 GPIO.output(6, True)
 time.sleep(2)
