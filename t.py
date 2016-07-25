@@ -24,12 +24,12 @@ GPIO.output(6, False)
 
 
 # drive gearbox
-GPIO.setup(23, GPIO.OUT)
-GPIO.setup(24, GPIO.OUT)
-
-#turn gearbox
 GPIO.setup(20, GPIO.OUT)
 GPIO.setup(21, GPIO.OUT)
+
+#turn gearbox
+GPIO.setup(23, GPIO.OUT)
+GPIO.setup(24, GPIO.OUT)
 
 
 #PWM_FREQ=50  #50Hz
@@ -117,8 +117,8 @@ while True:
         
         print 'forward'
         
-        GPIO.output(23, True)
-        GPIO.output(24, False)
+        GPIO.output(20, True)
+        GPIO.output(21, False)
         
         time.sleep(button_delay)
         
@@ -126,8 +126,8 @@ while True:
 
         print 'back'
 
-        GPIO.output(23, False)
-        GPIO.output(24, True)
+        GPIO.output(20, False)
+        GPIO.output(21, True)
 
         time.sleep(button_delay)
 
@@ -136,8 +136,8 @@ while True:
         
         print 'left'
 
-        GPIO.output(20, False)
-        GPIO.output(21, True)
+        GPIO.output(23, False)
+        GPIO.output(24, True)
 
         time.sleep(button_delay)
 
@@ -146,17 +146,17 @@ while True:
 
         print 'right'
 
-        GPIO.output(20, True)
-        GPIO.output(21, False)
+        GPIO.output(23, True)
+        GPIO.output(24, False)
 
         time.sleep(button_delay)
         
     else:
-        GPIO.output(23, False)
-        GPIO.output(24, False)
-
         GPIO.output(20, False)
         GPIO.output(21, False)
+
+        GPIO.output(23, False)
+        GPIO.output(24, False)
 
         time.sleep(button_delay)
 
