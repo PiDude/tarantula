@@ -11,7 +11,8 @@ git add .
 
 git commit -m "date"
 
-git remote add origin https://github.com/PiDude/tarantula.git
+#   dont need this line as the target is already set to repository
+#   git remote add origin https://github.com/PiDude/tarantula.git
 
 git push -u origin master
 
