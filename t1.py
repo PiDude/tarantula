@@ -58,20 +58,10 @@ for segment in segments:
     GPIO.setup(segment, GPIO.OUT)
     GPIO.output(segment, False)
 
+
 # define the LED segments to make numbers
 
-#array[0]=[1,1,1,1,1,1,0]
-#array[1]=[0,1,1,0,0,0,0]
-#array[2]=[1,1,0,1,1,0,1]
-#array[3]=[1,1,1,1,0,0,1]
-#array[4]=[0,1,1,0,0,1,1]
-#array[5]=[1,0,1,1,0,1,1]
-#array[6]=[1,0,1,1,1,1,1]
-#array[7]=[1,1,1,0,0,0,0]
-#array[8]=[1,1,1,1,1,1,1]
-#array[9]=[1,1,1,1,0,1,1]
-
-num = {'':(0,0,0,0,0,0,0),
+num = {' ':(0,0,0,0,0,0,0),
     '0':(1,1,1,1,1,1,0),
     '1':(0,1,1,0,0,0,0),
     '2':(1,1,0,1,1,0,1),
@@ -83,6 +73,13 @@ num = {'':(0,0,0,0,0,0,0),
     '8':(1,1,1,1,1,1,1),
     '9':(1,1,1,1,0,1,1)}
 
+
+# display a 0 to show program is running.
+print 'displaying 1'
+
+for x in range(0,7):
+    GPIO.output(segments[x], num['1'][x])
+time.sleep(2)
 
 
 # drive motor
@@ -106,9 +103,12 @@ button_delay = 0.1
 
 def Shutdown(channel):
 
-# on shutdown, display a "9"
+    # on shutdown, display a "3"
 
-  
+    for x in range(0,7):
+        GPIO.output(segments[x], num['3'][x])  
+
+    time.sleep(2)
 
     GPIO.cleanup()
     os.system("sudo shutdown -h now")
@@ -120,18 +120,16 @@ GPIO.add_event_detect(4, GPIO.FALLING, callback = Shutdown, bouncetime = 2000)
 
 
 
-#blink green LED twice as signal to pair wiimote.
+#print 2 to show pair wiimote
+print 'display 6'
 
-GPIO.output(5, True)
-time.sleep(0.5)
-GPIO.output(5, False)
-time.sleep(0.5)
-GPIO.output(5, True)
-time.sleep(0.5)
-GPIO.output(5, False)
+for x in range(0,7):
+    GPIO.output(segments[x], num['6'][x])
+
+time.sleep(2)
 
 
-#print 'press 1 + 2 on the Wii remote.....\n'
+print 'press 1 + 2 on the Wii remote.....\n'
 
 wii = None
 i = 2
@@ -154,10 +152,15 @@ while not wii:
         i = i +1
 
 
-GPIO.output(5, True)  #wiimote pairing SUCCESS.  light green LED for 2 seconds.
-#print 'Wii remote connected !\n'
+#wiimote pairing SUCCESS
+print 'Wii remote connected !\n'
+print 'displaying 3'
+
+for x in range(0,7):
+    GPIO.output(segments[x], num['3'][x])
+
 time.sleep(2)
-GPIO.output(5, False)
+
 
 
 wii.rpt_mode = cwiid.RPT_BTN
@@ -174,8 +177,6 @@ while True:
         wii.rumble = 1
         time.sleep(0.5)
         wii.rumble = 0
-        GPIO.output(5, True)
-        GPIO.output(6, True)
         GPIO.cleanup()
         exit(wii)
 
@@ -228,11 +229,6 @@ while True:
 
 
 #print 'done'
-GPIO.output(5, True)
-GPIO.output(6, True)
-time.sleep(2)
-GPIO.output(5, False)
-GPIO.output(6, False)
 
 
 GPIO.cleanup()
