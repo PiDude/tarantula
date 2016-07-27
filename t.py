@@ -6,28 +6,113 @@ import time
 import os
 import cwiid
 
-
+#use GPIO numbering
 GPIO.setmode(GPIO.BCM)
 
-# shutdown button
+# GPIO pins in use:
+# GPIO 2  n/c               GPIO 15
+# GPIO 3  n/c               GPIO 16
+# GPIO 4  shutdown button   GPIO 17
+# GPIO 5  LED seg C         GPIO 18
+# GPIO 6  LED seg D         GPIO 19  LED seg F
+# GPIO 7                    GPIO 20  drive motor
+# GPIO 8                    GPIO 21  drive motor
+# GPIO 9                    GPIO 22  LED seg B
+# GPIO 10                   GPIO 23  steer motor
+# GPIO 11                   GPIO 24  steer motor
+# GPIO 12                   GPIO 25
+# GPIO 13  LED seg E        GPIO 26  LED seg G
+# GPIO 14                   GPIO 27  LED seg A
+
+
+#  1 3.3V                     2  5V
+#  3 GPIO 2                   4  5V
+#  5 GPIO 3                   6  GND
+#  7 GPIO 4 shutdown button   8 GPIO 14
+#  9 GND                     10 GPIO 15
+# 11 GPIO 17                 12 GPIO 18
+# 13 GPIO 27 LED seg A       14  GND
+# 15 GPIO 22 LED seg B       16 GPIO 23 steer motor
+# 17 3.3V                    18 GPIO 24 steer motor
+# 19 GPIO 10                 20  GND
+# 21 GPIO 9                   2 GPIO 25
+# 23 GPIO 11                 24 GPIO 8
+# 25 GND                     26 GPIO 7
+# 27 DNC                     28  DNC
+# 29 GPIO 5  LED seg C       30  GND
+# 31 GPIO 6  LED seg D       32 GPIO 12
+# 33 GPIO 13 LED seg E       34  GND
+# 35 GPIO 19 LED seg F       36 GPIO 16
+# 37 GPIO 26 LED seg G       38 GPIO 20 drive motor
+# 39 GND                     40 GPIO 21 drive motor
+
+
+# define a shutdown button
 GPIO.setup(4, GPIO.IN, pull_up_down = GPIO.PUD_UP)  
 
-# LEDs to show status of wimote.
-#  GPIO 5 - green LED means SUCCESS pairing
-#  GPIO 6 - red LED means FAILURE pairing
+# use a 7-segment LED (5161AS) to show status of wimote.
+# set up seven GPIO pins 
+#
+#  10  9   8    7   6
+#   G  F  Gnd   A   B
+#    
+#          A
+#        -----
+#       |     |
+#       |F    |B
+#       |  G  |
+#        -----
+#       |     |
+#       |E    |C
+#       |     |
+#        -----   dp
+#          D
+#
+#  1   2   3   4   5
+#  E   D  Gnd  C   dp
 
-GPIO.setup(5, GPIO.OUT)
-GPIO.setup(6, GPIO.OUT)
 
-GPIO.output(5, False)
-GPIO.output(6, False)
+# GPIO pins for the seven segments in LED
+# 27=A, 22=B, 5=C, 6=D, 13=E, 19=F,and 26=G
+
+segments = (27,22,5,6,13,19,26)
+
+#configure the GPIO's for the LED
+
+for segment in segments:
+
+    GPIO.setup(segment, GPIO.OUT)
+    GPIO.output(segment, False)
 
 
-# drive gearbox
+# define the LED segments to make numbers
+
+num = {' ':(0,0,0,0,0,0,0),
+    '0':(1,1,1,1,1,1,0),
+    '1':(0,1,1,0,0,0,0),
+    '2':(1,1,0,1,1,0,1),
+    '3':(1,1,1,1,0,0,1),
+    '4':(0,1,1,0,0,1,1),
+    '5':(1,0,1,1,0,1,1),
+    '6':(1,0,1,1,1,1,1),
+    '7':(1,1,1,0,0,0,0),
+    '8':(1,1,1,1,1,1,1),
+    '9':(1,1,1,1,0,1,1)}
+
+
+# display a 1 to show program is running.
+print 'displaying 1'
+
+for x in range(0,7):
+    GPIO.output(segments[x], num['1'][x])
+time.sleep(2)
+
+
+# drive motor
 GPIO.setup(20, GPIO.OUT)
 GPIO.setup(21, GPIO.OUT)
 
-#turn gearbox
+# steer motor
 GPIO.setup(23, GPIO.OUT)
 GPIO.setup(24, GPIO.OUT)
 
@@ -38,34 +123,42 @@ GPIO.setup(24, GPIO.OUT)
 #GPIO.PWM(20, PWM_FREQ)
 #GPIO.PWM(21, PWM_FREQ)
 
+# a litte time to de-bounce a wiimote button
 button_delay = 0.1
 
 
+
+# this is the shutdown button attached to GPIO 4
+
 def Shutdown(channel):
 
-    GPIO.output(5, True)
-    GPIO.output(6, True)
+    # on shutdown, display a "9"
+
+    for x in range(0,7):
+        GPIO.output(segments[x], num['9'][x])  
+
     time.sleep(2)
-    GPIO.output(5, False)
-    GPIO.output(6, False)
+
     GPIO.cleanup()
     os.system("sudo shutdown -h now")
-	
 
+
+	
+# configure the shutdown button using GPIO 4
 GPIO.add_event_detect(4, GPIO.FALLING, callback = Shutdown, bouncetime = 2000)   
 
-#blink green LED twice as signal to pair wiimote.
-
-GPIO.output(5, True)
-time.sleep(0.5)
-GPIO.output(5, False)
-time.sleep(0.5)
-GPIO.output(5, True)
-time.sleep(0.5)
-GPIO.output(5, False)
 
 
-#print 'press 1 + 2 on the Wii remote.....\n'
+#display a "2" to show time to pair wiimote
+print 'display 2'
+
+for x in range(0,7):
+    GPIO.output(segments[x], num['2'][x])
+
+time.sleep(2)
+
+
+print 'press 1 + 2 on the Wii remote.....\n'
 
 wii = None
 i = 2
@@ -76,22 +169,34 @@ while not wii:
     except RuntimeError:
         if (i>10):
 
-            GPIO.output(6, True) # turn on RED LED.  wiimote failed.
+            # cannot pair, display an "8" then a "9"
+            for x in range(0,7):
+                GPIO.output(segments[x], num['8'][x])
+
             time.sleep(2)
-            GPIO.output(6, False)
+
+            for x in range(0,7):
+                GPIO.output(segments[x], num['9'][x])
+
+            time.sleep(2)
             GPIO.cleanup()
+            os.system("sudo shutdown -h now")
 
-            quit()
-            break
 
-#        print 'Error connecting to Wii remote. trying again...'
+#       print 'Error connecting to Wii remote. trying again...'
         i = i +1
 
 
-GPIO.output(5, True)  #wiimote pairing SUCCESS.  light green LED for 2 seconds.
-#print 'Wii remote connected !\n'
+#wiimote pairing SUCCESS
+
+print 'Wii remote connected !\n'
+print 'displaying 3'
+
+for x in range(0,7):
+    GPIO.output(segments[x], num['3'][x])
+
 time.sleep(2)
-GPIO.output(5, False)
+
 
 
 wii.rpt_mode = cwiid.RPT_BTN
@@ -108,10 +213,10 @@ while True:
         wii.rumble = 1
         time.sleep(0.5)
         wii.rumble = 0
-        GPIO.output(5, True)
-        GPIO.output(6, True)
         GPIO.cleanup()
         exit(wii)
+        os.system("sudo shutdown -h now")
+
 
     elif (buttons & cwiid.BTN_UP):  # go forward
         
@@ -162,11 +267,6 @@ while True:
 
 
 #print 'done'
-GPIO.output(5, True)
-GPIO.output(6, True)
-time.sleep(2)
-GPIO.output(5, False)
-GPIO.output(6, False)
 
 
 GPIO.cleanup()
