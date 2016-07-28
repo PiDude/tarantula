@@ -210,9 +210,15 @@ while True:
 
     if (buttons - cwiid.BTN_PLUS - cwiid.BTN_MINUS == 0):
 #        print '\nClosing connection....'
+
+        for x in range(0,7):
+            GPIO.output(segments[x], num['9'][x])
+
         wii.rumble = 1
         time.sleep(0.5)
         wii.rumble = 0
+        time.sleep(1.5)
+
         GPIO.cleanup()
         exit(wii)
         os.system("sudo shutdown -h now")
