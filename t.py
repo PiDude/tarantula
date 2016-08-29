@@ -101,10 +101,10 @@ num = {' ':(0,0,0,0,0,0,0),
 
 
 # display a 1 to show program is running.
-print 'displaying 1'
+print 'displaying 0'
 
 for x in range(0,7):
-    GPIO.output(segments[x], num['1'][x])
+    GPIO.output(segments[x], num['0'][x])
 time.sleep(2)
 
 
@@ -149,13 +149,22 @@ GPIO.add_event_detect(4, GPIO.FALLING, callback = Shutdown, bouncetime = 2000)
 
 
 
-#display a "2" to show time to pair wiimote
-print 'display 2'
+#display a "1 then 2" to show time to pair wiimote
+print 'display 1and2'
 
-for x in range(0,7):
-    GPIO.output(segments[x], num['2'][x])
+for z in range(0,2):
+    print 'z = ', z
+    for x in range(0,7):
+        GPIO.output(segments[x], num['1'][x])
 
-time.sleep(2)
+    time.sleep(0.6)
+
+    for x in range(0,7):
+        GPIO.output(segments[x], num['2'][x])
+    time.sleep(0.6)
+
+
+time.sleep(0.5)
 
 
 print 'press 1 + 2 on the Wii remote.....\n'
@@ -190,7 +199,14 @@ while not wii:
 #wiimote pairing SUCCESS
 
 print 'Wii remote connected !\n'
-print 'displaying 3'
+
+
+#rumble the remote to show pairing complete
+wii.rumble = 1
+time.sleep(0.5)
+wii.rumble = 0
+
+print 'displaying 3 - tarantula is operational'
 
 for x in range(0,7):
     GPIO.output(segments[x], num['3'][x])
@@ -217,12 +233,10 @@ while True:
         wii.rumble = 1
         time.sleep(0.5)
         wii.rumble = 0
-        time.sleep(1.5)
+        time.sleep(1)
 
         GPIO.cleanup()
         exit(wii)
-        os.system("sudo shutdown -h now")
-
 
     elif (buttons & cwiid.BTN_UP):  # go forward
         
@@ -242,7 +256,6 @@ while True:
 
         time.sleep(button_delay)
 
-
     elif (buttons & cwiid.BTN_LEFT):    # turn left
         
         print 'left'
@@ -251,7 +264,6 @@ while True:
         GPIO.output(24, True)
 
         time.sleep(button_delay)
-
 
     elif (buttons & cwiid.BTN_RIGHT):    # turn right
 
@@ -263,6 +275,7 @@ while True:
         time.sleep(button_delay)
         
     else:
+
         GPIO.output(20, False)
         GPIO.output(21, False)
 
@@ -276,6 +289,12 @@ while True:
 
 
 GPIO.cleanup()
+
+os.system("sudo shutdown -h now")
+
+
+
+
 
 
 
