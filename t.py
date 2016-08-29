@@ -1,4 +1,4 @@
-#/bin/sh
+ #/bin/sh
 
 import RPi.GPIO as GPIO
 import sys
@@ -214,6 +214,7 @@ for x in range(0,7):
 time.sleep(2)
 
 
+steer = 0
 
 wii.rpt_mode = cwiid.RPT_BTN
 
@@ -260,8 +261,15 @@ while True:
         
         print 'left'
 
-        GPIO.output(23, False)
-        GPIO.output(24, True)
+        if steer > -4:
+            steer = steer - 1
+            GPIO.output(23, False)
+            GPIO.output(24, True)
+        else:
+            GPIO.output(23, False)
+            GPIO.output(24, False)
+       
+        print 'steer = ', steer
 
         time.sleep(button_delay)
 
@@ -269,8 +277,15 @@ while True:
 
         print 'right'
 
-        GPIO.output(23, True)
-        GPIO.output(24, False)
+        if steer < 4:
+            steer = steer +1
+            GPIO.output(23, True)
+            GPIO.output(24, False)
+        else:
+            GPIO.output(23, False)
+            GPIO.output(24, False)
+    
+        print 'steer = ', steer
 
         time.sleep(button_delay)
         
